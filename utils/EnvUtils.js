@@ -1,10 +1,12 @@
 import {Platform} from 'react-native';
 
 export class EnvUtils {
+  static #OS = Platform.OS;
+
   static isIos() {
-    return Platform.OS === 'ios';
+    return this.#OS === 'ios';
   }
   static isAndroid() {
-    return Platform.OS === 'android';
+    return this.#OS === 'android';
   }
 }

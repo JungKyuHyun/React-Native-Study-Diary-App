@@ -2,7 +2,7 @@ import React from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import FeedListItem from './FeedListItem';
 
-function FeedList({logs, onScrolledToBottom}) {
+function FeedList({logs, onScrolledToBottom, ListHeaderComponent}) {
   const onScroll = e => {
     if (onScrolledToBottom === undefined) {
       return;
@@ -10,8 +10,14 @@ function FeedList({logs, onScrolledToBottom}) {
     const {contentSize, layoutMeasurement, contentOffset} = e.nativeEvent;
     const distanceFromBottom =
       contentSize.height - layoutMeasurement.height - contentOffset.y;
+    console.log({
+      distanceFromBottom,
+      contentSize: contentSize.height,
+      layoutMeasurement: layoutMeasurement.height,
+      contentOffset: contentOffset.y,
+    });
 
-    if (distanceFromBottom < 72) {
+    if (Math.abs(distanceFromBottom) < 40) {
       onScrolledToBottom(true);
     } else {
       onScrolledToBottom(false);
@@ -26,6 +32,7 @@ function FeedList({logs, onScrolledToBottom}) {
       renderItem={({item}) => <FeedListItem log={item} />}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       onScroll={onScroll}
+      ListHeaderComponent={ListHeaderComponent}
     />
   );
 }

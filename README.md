@@ -329,3 +329,157 @@ function FloatingWriteButton({hidden}) {
 다만 여러 옵션이 있으나, 정해진 묶음 내에서 사용해야 한다. [[공식 문서](https://reactnative.dev/docs/animated#spring)]를 참고하자.
 
 > Note that you can only define one of bounciness/speed, tension/friction, or stiffness/damping/mass, but not more than one:
+
+## 화면 크기를 dp로 가져오는법
+
+1. `Dimensions.get('window' | 'screen')` 사용
+2. `useWindowDimensions` hook 사용
+
+### Dimensions.get()
+
+ios에서는 현재 앱에서 사용할 수 있는 영역의 크기를 가져오기 때문에 `'window' | 'screen'` 둘다 동일하다.
+
+다만 안드로이드에서는 `'window'`로 조회했을 때 상단의 상태 바와 하단의 소프트 메뉴바 영역을 제외한 크기를 반환한다.
+
+다만 `Dimensions.get()`으로 화면 크기를 구할때의 단점은 화면의 방향을 바꾸거나, 폴더블 디바이스를 사용하면 이 크기가 변할 수 있기 때문에 여기에 대응해 줘야 한다. 최신 버전을 사용중이라면 `case1`번처럼, 아니라면 `case2`번처럼 구현하면 된다.
+
+```javascript
+// case 1
+function SearchHeader() {
+  const [dimensions, setDimensions] = useState(Dimensions.get('window'));
+
+  useEffect(() => {
+    const eventListener = ({window, screen}) => {
+      setDimensions(window);
+    };
+    const subscription = Dimensions.addEventListener('change', eventListener);
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  return <View ... />;
+}
+```
+
+```javascript
+// case 2 - 이 방법은 최신 버전에서는 deprecated 되었다.
+function SearchHeader() {
+  const [dimensions, setDimensions] = useState(Dimensions.get('window'));
+
+  useEffect(() => {
+    const eventListener = ({window, screen}) => {
+      setDimensions(window);
+    };
+
+    Dimensions.addEventListener('change', eventListener);
+    return () => {
+      Dimensions.removeEventListener('change', eventListener)
+    };
+  }, []);
+
+  return <View ... />;
+}
+```
+
+### useWindowDimensions hook 사용
+
+`useWindowDimensions` 훅을 사용할 경우 `Dimensions.get`과 달리 화면 크기가 바뀌는 상황에 자동으로 반영되기 때문에 우리가 직접 대응할 필요가 없다.
+
+다만 전체 화면 크기를 가져오는 기능이 없어, 전체 화면 크기를 구해야 한다면, `Dimensions.get('screen')`으로 구해야 한다.
+
+```javascript
+function SearchHeader() {
+  const {width, height} = useWindowDimensions();
+
+  return ...;
+}
+```
+
+<hr />
+
+## 달력 기능 구현하기
+
+## 추가 설치
+
+https://github.com/wix/react-native-calendars#readme
+
+```bash
+$ yarn add react-native-calendars
+```
+
+## 기본 사용법
+
+대부분은 문서 보면 된다.
+
+```javascript
+function CalendarView() {
+  const markedDates = {
+    '2021-12-06': {
+      selected: true,
+    },
+    // 07 한 자리더라도 0을 꼭 붙여줘야한다. 7로 표현하면 마커가 제대로 안찍히는 현상이 있다.
+    // yyyy-MM-dd
+    '2021-12-07': {
+      marked: true,
+    },
+    '2021-12-25': {
+      marked: true,
+    },
+  };
+  return <Calendar style={styles.calendar} markedDates={markedDates} />;
+}
+```
+
+색상 변경 등의 반영은 앱을 리로드하여야 반영된다. (아래는 ios앱만 리로드 했을 때의 모습)
+
+![image](https://user-images.githubusercontent.com/42884032/144840498-67c692ff-0764-4319-9371-f25e33e2a306.png)
+
+## FlatList의 ListHeaderComponent
+
+`FlatList` 컴포넌트 `Props` 중에 있는 `ListHeaderComponent`를 사용하면, `FlatList`의 내용 상단부에 특정 컴포넌트를 보여줄 수 있다.
+
+<hr />
+
+## 날짜 및 시간 수정 기능 구현하기
+
+## 추가 설치
+
+https://github.com/react-native-datetimepicker/datetimepicker
+
+```bash
+$ yarn add react-native-modal-datetime-picker @react-native-community/datetimepicker
+```
+
+<hr />
+
+## 데이터 유지
+
+앞써 배운 `AsyncStorage`를 사용한다.
+
+## 설치
+
+```bash
+$ yarn add @react-native-community/async-storage
+```
+
+<hr />
+
+## 끝
+
+- Floating 버튼 구현 및 애니메이션 구현
+- 일정 등록, 삭제, 수정 보기 기능
+- 캘린더 라이브러리 사용법
+- 캘린더에서 날짜별로 등록된 일정 확인 기능
+- 일정 검색 기능
+- 날짜 수정 기능
+- context api, react hooks
+- ios / android 둘다 개발
+
+### ios
+
+![2021-12-07_17-22-53 (1)](https://user-images.githubusercontent.com/42884032/144993050-bcf2327a-fc1f-45fe-9d5a-672c9564ce31.gif)
+
+### android
+
+![2021-12-07_17-34-31 (1)](https://user-images.githubusercontent.com/42884032/144994719-32723f56-1670-4501-beab-88cbc296dfc9.gif)
